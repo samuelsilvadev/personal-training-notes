@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111418">
+<title>Plano Alimentar — Julho</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --surface: #171b21;
+    --surface-2: #1e242c;
+    --border: #2a323c;
+    --text: #e8ecf1;
+    --muted: #93a1b0;
+    --accent: #4ade80;
+    --accent-dim: #14532d;
+    --radius: 14px;
+    --max: 900px;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f7f9;
+      --surface: #ffffff;
+      --surface-2: #f0f2f5;
+      --border: #dfe3e8;
+      --text: #16191d;
+      --muted: #5c6874;
+      --accent: #16a34a;
+      --accent-dim: #dcfce7;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .wrap {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 20px 16px 64px;
+  }
+
+  a.back {
+    display: inline-block;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  a.back:hover { color: var(--accent); }
+
+  header h1 {
+    font-size: 1.5rem;
+    margin: 0 0 4px;
+    letter-spacing: -0.02em;
+  }
+
+  header p {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* Macro strip */
+  .macros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .macro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+
+  .macro dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+
+  .macro dd {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Day tabs */
+  nav.days {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 18px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  nav.days::-webkit-scrollbar { display: none; }
+
+  nav.days button {
+    flex: 0 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  nav.days button[aria-selected="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #06170d;
+  }
+
+  @media (prefers-color-scheme: light) {
+    nav.days button[aria-selected="true"] { color: #fff; }
+  }
+
+  /* Meal cards */
+  .meal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  .meal h3 {
+    margin: 0 0 2px;
+    font-size: 0.98rem;
+  }
+
+  .meal .time {
+    display: block;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .meal ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .meal li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.93rem;
+  }
+
+  .meal li:first-child { border-top: 0; }
+
+  .meal li .qty {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Collapsible sections */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  details > summary {
+    padding: 14px 16px;
+    font-weight: 650;
+    font-size: 0.95rem;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  details > summary::-webkit-details-marker { display: none; }
+
+  details > summary::after {
+    content: "+";
+    color: var(--muted);
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  details[open] > summary::after { content: "−"; }
+
+  .details-body {
+    padding: 0 16px 16px;
+    font-size: 0.92rem;
+  }
+
+  .details-body h4 {
+    margin: 14px 0 6px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+
+  .details-body h4:first-child { margin-top: 0; }
+
+  .details-body ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .details-body li { padding: 3px 0; }
+
+  .details-body .note {
+    background: var(--surface-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 0.87rem;
+  }
+
+  h2.section {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 28px 0 10px;
+  }
+
+  footer {
+    margin-top: 28px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="back" href="../../index.html">← Início</a>
+    <h1>Plano Alimentar</h1>
+    <p>Julho · hipertrofia com recomposição corporal</p>
+  </header>
+
+  <dl class="macros">
+    <div class="macro"><dt>Calorias</dt><dd>3.200–3.400</dd></div>
+    <div class="macro"><dt>Proteína</dt><dd>~180 g</dd></div>
+    <div class="macro"><dt>Carboidratos</dt><dd>380–420 g</dd></div>
+    <div class="macro"><dt>Gorduras</dt><dd>60–75 g</dd></div>
+    <div class="macro"><dt>Água</dt><dd>3,5–4 L</dd></div>
+  </dl>
+
+  <h2 class="section">Dia</h2>
+  <nav class="days" id="days" role="tablist"></nav>
+
+  <div id="meals"></div>
+
+  <h2 class="section">Rotina &amp; suplementação</h2>
+
+  <details>
+    <summary>Antes e durante o treino</summary>
+    <div class="details-body">
+      <ul>
+        <li>Treino em jejum</li>
+        <li>1 dose de Prozis Big Shot</li>
+        <li>Água antes do treino</li>
+        <li>~1 L de água durante o treino</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Suplementação do dia <span id="supp-day-label"></span></summary>
+    <div class="details-body" id="supp-body"></div>
+  </details>
+
+  <details>
+    <summary>Hidratação</summary>
+    <div class="details-body">
+      <ul>
+        <li>Durante o treino: ~1 L</li>
+        <li>Restante do dia: ~2 L</li>
+        <li>Líquidos provenientes dos shakes</li>
+      </ul>
+      <div class="note">Total diário esperado: <strong>3,5–4 L</strong></div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Observações</summary>
+    <div class="details-body">
+      <ul>
+        <li>Os vegetais são livres no almoço e no jantar.</li>
+        <li>Não alterar as quantidades durante o mês de julho.</li>
+        <li>A partir de agosto, com a introdução do cardio, reavaliar as calorias e os macronutrientes.</li>
+        <li>Fazer uma avaliação semanal sempre nas mesmas condições.</li>
+      </ul>
+      <h4>Acompanhar semanalmente</h4>
+      <ul>
+        <li>Peso médio da semana</li>
+        <li>Circunferência da cintura, braço e coxa</li>
+        <li>Fotografia de frente, lado e costas</li>
+        <li>Evolução das cargas no treino</li>
+      </ul>
+      <h4>Objetivo até ao final de julho</h4>
+      <ul>
+        <li>Manter elevada performance no treino</li>
+        <li>Ganhar massa muscular</li>
+        <li>Reduzir lentamente a gordura corporal</li>
+        <li>Construir uma alimentação sustentável, variada e fácil de manter</li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>Plano válido até ao final de julho</footer>
+</div>
+
+<script>
+const SHAKE = {
+  name: "Meio da manhã", time: "Shake",
+  items: [["Aveia","100 g"],["Whey hidrolisado","35 g"],["Frutos vermelhos","100 g"],["Creatina","6 g"]]
+};
+
+const BREAKFAST = {
+  name: "Pós-treino / Pequeno-almoço", time: "Após o treino",
+  items: [["Pão de centeio","4 fatias (≈180 g)"],["Claras","200 g"],["Ovo inteiro mexido","1"]]
+};
+
+const oats = extra => ({
+  name: "Lanche", time: "Overnight oats",
+  items: [["Aveia","60 g"],["Iogurte magro","200 g"],["Chia","10 g"],["Whey hidrolisado","20 g"], ...extra]
+});
+
+const DAYS = [
+  { key: "seg", label: "Seg", full: "Segunda-feira", supps: ["Multivitamínico", "B12 — 1000 µg"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz cozido","320 g"],["Tofu crocante no forno","200 g"],["Brócolos","livre"],["Salada verde","livre"]] },
+    oats([]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu teriyaki","200 g"],["Legumes salteados","livre"]] }
+  ]},
+  { key: "ter", label: "Ter", full: "Terça-feira", supps: ["Vitamina D", "Ginkgo Biloba"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz","320 g"],["Seitan grelhado","220 g"],["Brócolos","livre"]] },
+    oats([["Cacau em pó","a gosto"]]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Seitan","220 g"],["Salada","livre"]] }
+  ]},
+  { key: "qua", label: "Qua", full: "Quarta-feira", supps: ["Multivitamínico"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz","320 g"],["Tempeh marinado","200 g"],["Brócolos","livre"]] },
+    oats([["Frutos vermelhos","a gosto"]]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Tempeh","200 g"],["Legumes","livre"]] }
+  ]},
+  { key: "qui", label: "Qui", full: "Quinta-feira", supps: ["Vitamina D", "Ginkgo Biloba", "B12 — 1000 µg"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz","320 g"],["Chili de soja texturizada","~200 g preparado"],["Salada","livre"]] },
+    oats([["Maçã","1"],["Canela","a gosto"]]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Chili de soja texturizada","~200 g"],["Brócolos","livre"]] }
+  ]},
+  { key: "sex", label: "Sex", full: "Sexta-feira", supps: ["Multivitamínico"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz","320 g"],["Tofu estilo mexicano","200 g"],["Legumes","livre"]] },
+    oats([["Cacau","a gosto"]]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu grelhado","200 g"],["Salada","livre"]] }
+  ]},
+  { key: "sab", label: "Sáb", full: "Sábado", supps: ["Vitamina D", "Ginkgo Biloba"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz","320 g"],["Seitan","220 g"],["Brócolos","livre"]] },
+    oats([]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu crocante","200 g"],["Legumes","livre"]] }
+  ]},
+  { key: "dom", label: "Dom", full: "Domingo", supps: ["Multivitamínico"], meals: [
+    BREAKFAST, SHAKE,
+    { name: "Almoço", items: [["Arroz","320 g"],["Camarão grelhado (alho, limão, paprika)","200 g"],["Brócolos","livre"],["Salada verde","livre"]] },
+    oats([["Frutos vermelhos","a gosto"]]),
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu","100 g"],["Edamame","150 g"],["Legumes variados","livre"]] }
+  ]}
+];
+
+const DAILY_SUPPS = [
+  ["Meio da manhã (no shake)", "6 g de creatina"],
+  ["Antes do jantar", "3 cápsulas de Ómega-3"],
+  ["Depois do jantar", "Ferro (até terminar o tratamento)"],
+  ["Antes de dormir", "Magnésio Bisglicinato"]
+];
+
+const nav = document.getElementById("days");
+const mealsEl = document.getElementById("meals");
+const suppBody = document.getElementById("supp-body");
+const suppLabel = document.getElementById("supp-day-label");
+
+const el = (tag, cls, text) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+};
+
+function renderDay(day) {
+  mealsEl.replaceChildren(...day.meals.map(meal => {
+    const card = el("div", "meal");
+    card.append(el("h3", null, meal.name));
+    if (meal.time) card.append(el("span", "time", meal.time));
+    const ul = el("ul");
+    meal.items.forEach(([food, qty]) => {
+      const li = el("li");
+      li.append(el("span", null, food), el("span", "qty", qty));
+      ul.append(li);
+    });
+    card.append(ul);
+    return card;
+  }));
+
+  suppLabel.textContent = "· " + day.full;
+
+  const morning = el("h4", null, "Após o treino, com o pequeno-almoço");
+  const morningList = el("ul");
+  day.supps.forEach(s => morningList.append(el("li", null, s)));
+
+  const rest = DAILY_SUPPS.map(([when, what]) => {
+    const h = el("h4", null, when);
+    const ul = el("ul");
+    ul.append(el("li", null, what));
+    return [h, ul];
+  }).flat();
+
+  const note = el("div", "note", "Ómega-3 atualmente de linhaça. Substituir por óleo de algas quando terminar a embalagem.");
+
+  suppBody.replaceChildren(morning, morningList, ...rest, note);
+}
+
+function select(key, scrollIntoView) {
+  const day = DAYS.find(d => d.key === key) || DAYS[0];
+  [...nav.children].forEach(b => {
+    const active = b.dataset.key === day.key;
+    b.setAttribute("aria-selected", String(active));
+    if (active && scrollIntoView) b.scrollIntoView({ block: "nearest", inline: "center" });
+  });
+  renderDay(day);
+}
+
+DAYS.forEach(day => {
+  const btn = el("button", null, day.label);
+  btn.dataset.key = day.key;
+  btn.setAttribute("role", "tab");
+  btn.setAttribute("aria-selected", "false");
+  btn.addEventListener("click", () => select(day.key));
+  nav.append(btn);
+});
+
+// getDay(): 0 = Sunday, so shift to make Monday index 0
+select(DAYS[(new Date().getDay() + 6) % 7].key, true);
+</script>
+</body>
+</html>
