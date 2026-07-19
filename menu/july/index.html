@@ -184,6 +184,109 @@
     white-space: nowrap;
   }
 
+  /* Recipe trigger + modal */
+  button.recipe {
+    background: var(--accent-dim);
+    border: 1px solid transparent;
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 2px 9px;
+    margin-left: 7px;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    vertical-align: 1px;
+  }
+
+  button.recipe:hover { border-color: var(--accent); }
+
+  dialog#recipe {
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(80vh, 720px);
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  dialog#recipe::backdrop {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .r-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .r-head h3 {
+    margin: 0;
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+  }
+
+  .r-head .r-qty {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  .r-close {
+    flex: 0 0 auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .r-close:hover { color: var(--text); }
+
+  .r-body {
+    padding: 16px 18px 20px;
+    overflow-y: auto;
+    max-height: calc(min(80vh, 720px) - 82px);
+  }
+
+  .r-body h4 {
+    margin: 18px 0 8px;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+  }
+
+  .r-body h4:first-child { margin-top: 0; }
+
+  .r-body ul,
+  .r-body ol {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.93rem;
+  }
+
+  .r-body li { padding: 3px 0; }
+
+  .r-body ol li::marker {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
   /* Collapsible sections */
   details {
     background: var(--surface);
@@ -345,7 +448,136 @@
   <footer>Plano válido até ao final de julho</footer>
 </div>
 
+<dialog id="recipe" aria-labelledby="r-title">
+  <div class="r-head">
+    <div>
+      <h3 id="r-title"></h3>
+      <span class="r-qty" id="r-qty"></span>
+    </div>
+    <button class="r-close" id="r-close" aria-label="Fechar">✕</button>
+  </div>
+  <div class="r-body" id="r-body"></div>
+</dialog>
+
 <script>
+const RECIPES = {
+  crocante: {
+    title: "🟠 Tofu Crocante Fumado", qty: "200 g",
+    ingredients: [
+      "200 g tofu firme",
+      "1 colher de chá de alho em pó",
+      "1 colher de chá de paprika fumada",
+      "½ colher de chá de cebola em pó",
+      "Pimenta preta",
+      "Sal",
+      "1 colher de chá de amido de milho",
+      "Spray de azeite"
+    ],
+    steps: [
+      "Prensar o tofu durante 20–30 minutos.",
+      "Cortar em cubos.",
+      "Misturar os temperos.",
+      "Polvilhar com o amido de milho.",
+      "Air fryer: 190 °C durante 15–18 minutos, abanando a cesta a meio."
+    ]
+  },
+  teriyaki: {
+    title: "🟤 Tofu Teriyaki", qty: "200 g",
+    ingredientsLabel: "Ingredientes · molho",
+    ingredients: [
+      "2 colheres de sopa de molho de soja light",
+      "1 colher de sopa de vinagre de arroz",
+      "1 colher de chá de mel (opcional)",
+      "1 colher de chá de gengibre ralado",
+      "1 dente de alho picado",
+      "½ colher de chá de amido de milho",
+      "30 ml de água"
+    ],
+    steps: [
+      "Grelhar o tofu durante cerca de 5 minutos.",
+      "Misturar todos os ingredientes do molho.",
+      "Juntar o molho ao tofu.",
+      "Cozinhar mais 2–3 minutos até engrossar."
+    ]
+  },
+  mexicano: {
+    title: "🌮 Tofu Mexicano", qty: "200 g",
+    ingredients: [
+      "1 colher de chá de paprika fumada",
+      "1 colher de chá de paprika doce",
+      "1 colher de chá de cominhos",
+      "½ colher de chá de alho em pó",
+      "½ colher de chá de cebola em pó",
+      "Chili em pó (a gosto)",
+      "Pimenta preta",
+      "Sal",
+      "Sumo de meia lima"
+    ],
+    steps: [
+      "Esfarelar ou cortar o tofu em cubos.",
+      "Misturar todos os temperos.",
+      "Saltear durante 8–10 minutos."
+    ]
+  },
+  mediterranico: {
+    title: "🌿 Tofu Mediterrânico", qty: "200 g",
+    ingredients: [
+      "1 colher de chá de alho em pó",
+      "1 colher de chá de orégãos",
+      "½ colher de chá de tomilho",
+      "Pimenta preta",
+      "Sal",
+      "Raspa de limão",
+      "Algumas gotas de sumo de limão"
+    ],
+    steps: [
+      "Temperar o tofu.",
+      "Grelhar cerca de 4 minutos de cada lado.",
+      "Finalizar com raspa e sumo de limão."
+    ]
+  },
+  caril: {
+    title: "🟡 Tofu com Caril", qty: "200 g",
+    ingredients: [
+      "1 colher de chá de caril",
+      "½ colher de chá de cúrcuma",
+      "½ colher de chá de alho em pó",
+      "½ colher de chá de gengibre em pó (ou fresco)",
+      "Pimenta preta",
+      "Sal",
+      "50 ml de leite de coco light"
+    ],
+    steps: [
+      "Grelhar o tofu durante 5 minutos.",
+      "Adicionar os temperos.",
+      "Juntar o leite de coco.",
+      "Cozinhar mais 3–4 minutos."
+    ]
+  },
+  asiatico: {
+    title: "🥢 Tofu Asiático com Gengibre e Sésamo", qty: "100 g",
+    ingredients: [
+      "100 g tofu firme",
+      "1 colher de sopa de molho de soja light",
+      "1 colher de chá de gengibre fresco ralado",
+      "1 dente de alho picado",
+      "½ colher de chá de óleo de sésamo (opcional)",
+      "Pimenta preta",
+      "Cebolinho picado (opcional)",
+      "1 colher de chá de sementes de sésamo (opcional)"
+    ],
+    steps: [
+      "Prensar o tofu durante 20 minutos.",
+      "Cortar em cubos.",
+      "Grelhar durante 4–5 minutos.",
+      "Adicionar o alho e o gengibre e cozinhar mais 1 minuto.",
+      "Juntar o molho de soja e o óleo de sésamo.",
+      "Deixar reduzir durante cerca de 2 minutos.",
+      "Finalizar com o cebolinho e as sementes de sésamo."
+    ]
+  }
+};
+
 const SHAKE = {
   name: "Meio da manhã", time: "Shake",
   items: [["Aveia","100 g"],["Whey hidrolisado","35 g"],["Frutos vermelhos","100 g"],["Creatina","6 g"]]
@@ -364,9 +596,9 @@ const oats = extra => ({
 const DAYS = [
   { key: "seg", label: "Seg", full: "Segunda-feira", supps: ["Multivitamínico", "B12 — 1000 µg"], meals: [
     BREAKFAST, SHAKE,
-    { name: "Almoço", items: [["Arroz cozido","320 g"],["Tofu crocante no forno","200 g"],["Brócolos","livre"],["Salada verde","livre"]] },
+    { name: "Almoço", items: [["Arroz cozido","320 g"],["Tofu crocante fumado","200 g","crocante"],["Brócolos","livre"],["Salada verde","livre"]] },
     oats([]),
-    { name: "Jantar", items: [["Arroz","260 g"],["Tofu teriyaki","200 g"],["Legumes salteados","livre"]] }
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu teriyaki","200 g","teriyaki"],["Legumes salteados","livre"]] }
   ]},
   { key: "ter", label: "Ter", full: "Terça-feira", supps: ["Vitamina D", "Ginkgo Biloba"], meals: [
     BREAKFAST, SHAKE,
@@ -388,21 +620,21 @@ const DAYS = [
   ]},
   { key: "sex", label: "Sex", full: "Sexta-feira", supps: ["Multivitamínico"], meals: [
     BREAKFAST, SHAKE,
-    { name: "Almoço", items: [["Arroz","320 g"],["Tofu estilo mexicano","200 g"],["Legumes","livre"]] },
+    { name: "Almoço", items: [["Arroz","320 g"],["Tofu mexicano","200 g","mexicano"],["Legumes","livre"]] },
     oats([["Cacau","a gosto"]]),
-    { name: "Jantar", items: [["Arroz","260 g"],["Tofu grelhado","200 g"],["Salada","livre"]] }
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu mediterrânico","200 g","mediterranico"],["Salada","livre"]] }
   ]},
   { key: "sab", label: "Sáb", full: "Sábado", supps: ["Vitamina D", "Ginkgo Biloba"], meals: [
     BREAKFAST, SHAKE,
     { name: "Almoço", items: [["Arroz","320 g"],["Seitan","220 g"],["Brócolos","livre"]] },
     oats([]),
-    { name: "Jantar", items: [["Arroz","260 g"],["Tofu crocante","200 g"],["Legumes","livre"]] }
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu com caril","200 g","caril"],["Legumes","livre"]] }
   ]},
   { key: "dom", label: "Dom", full: "Domingo", supps: ["Multivitamínico"], meals: [
     BREAKFAST, SHAKE,
     { name: "Almoço", items: [["Arroz","320 g"],["Camarão grelhado (alho, limão, paprika)","200 g"],["Brócolos","livre"],["Salada verde","livre"]] },
     oats([["Frutos vermelhos","a gosto"]]),
-    { name: "Jantar", items: [["Arroz","260 g"],["Tofu","100 g"],["Edamame","150 g"],["Legumes variados","livre"]] }
+    { name: "Jantar", items: [["Arroz","260 g"],["Tofu asiático","100 g","asiatico"],["Edamame","150 g"],["Legumes variados","livre"]] }
   ]}
 ];
 
@@ -431,9 +663,17 @@ function renderDay(day) {
     card.append(el("h3", null, meal.name));
     if (meal.time) card.append(el("span", "time", meal.time));
     const ul = el("ul");
-    meal.items.forEach(([food, qty]) => {
+    meal.items.forEach(([food, qty, recipeKey]) => {
       const li = el("li");
-      li.append(el("span", null, food), el("span", "qty", qty));
+      const name = el("span", null, food);
+      if (recipeKey) {
+        const btn = el("button", "recipe", "receita");
+        btn.type = "button";
+        btn.setAttribute("aria-label", "Ver receita: " + food);
+        btn.addEventListener("click", () => openRecipe(recipeKey));
+        name.append(btn);
+      }
+      li.append(name, el("span", "qty", qty));
       ul.append(li);
     });
     card.append(ul);
@@ -457,6 +697,37 @@ function renderDay(day) {
 
   suppBody.replaceChildren(morning, morningList, ...rest, note);
 }
+
+const dlg = document.getElementById("recipe");
+
+function openRecipe(key) {
+  const r = RECIPES[key];
+  if (!r) return;
+
+  document.getElementById("r-title").textContent = r.title;
+  document.getElementById("r-qty").textContent = "Para " + r.qty;
+
+  const ingHead = el("h4", null, r.ingredientsLabel || "Ingredientes");
+  const ingList = el("ul");
+  r.ingredients.forEach(i => ingList.append(el("li", null, i)));
+
+  const stepHead = el("h4", null, "Preparação");
+  const stepList = el("ol");
+  r.steps.forEach(s => stepList.append(el("li", null, s)));
+
+  document.getElementById("r-body").replaceChildren(ingHead, ingList, stepHead, stepList);
+  dlg.showModal();
+}
+
+document.getElementById("r-close").addEventListener("click", () => dlg.close());
+
+// Click on the backdrop (outside the dialog box) closes it
+dlg.addEventListener("click", e => {
+  const box = dlg.getBoundingClientRect();
+  const outside = e.clientX < box.left || e.clientX > box.right ||
+                  e.clientY < box.top || e.clientY > box.bottom;
+  if (outside) dlg.close();
+});
 
 function select(key, scrollIntoView) {
   const day = DAYS.find(d => d.key === key) || DAYS[0];
